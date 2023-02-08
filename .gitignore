@@ -1,0 +1,8 @@
+*
+!docs
+!docs/**
+!.gitignore
+!.git
+!src
+!src/**
+!README.md
