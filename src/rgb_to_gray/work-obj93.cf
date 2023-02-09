@@ -1,0 +1,7 @@
+v 4
+file . "rgbgray_tb.vhd" "4138724776add521ee5e0d4062b922c03c56d60d" "20230209162359.883":
+  entity rgbgray_tb at 1( 0) + 0 on 81;
+  architecture testbench of rgbgray_tb at 8( 115) + 0 on 82;
+file . "rgbgray.vhd" "c99aac318230b3cd8224bf79068be4cb202a6011" "20230209162359.856":
+  entity rgbgray at 1( 0) + 0 on 79;
+  architecture rtl of rgbgray at 15( 298) + 0 on 80;
