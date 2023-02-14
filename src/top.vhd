@@ -50,6 +50,14 @@ architecture behavioral of top is
 		);
 	end component;
 	
+	component pll_cam
+		port
+		(
+			inclk0		: in	std_logic := '0';
+			c0			: out	std_logic 
+		);
+	end component;
+	
 	component HDMI_TX
 		generic (
 			h_total: 	integer := 2200;
@@ -67,6 +75,7 @@ architecture behavioral of top is
 		port (
 			clk:		in		std_logic;
 			rst_n:		in		std_logic;
+			color:		in		std_logic;
 			de:			out		std_logic;
 			vs:			out		std_logic;
 			hs:			out		std_logic;
@@ -85,14 +94,33 @@ architecture behavioral of top is
 			HDMI_TX_INT:in		std_logic
 		);
 	end component;
+	
+	component full_ram
+		port
+		(
+			data		:	in 		std_logic_vector (7 downto 0);
+			rdaddress	:	in 		std_logic_vector (18 downto 0);
+			rdclock		:	in 		std_logic;
+			wraddress	:	in 		std_logic_vector (18 downto 0);
+			wrclock		:	in 		std_logic := '1';
+			wren		:	in 		std_logic := '0';
+			q			:	out 	std_logic_vector (7 downto 0)
+		);
+	end component;
+
 
 	signal pxl_clk:		std_logic;
+	signal cam_clk:		std_logic;
 	signal reset_n:		std_logic;
+	
+	signal cam_count:	integer;
+	signal cam_data:	std_logic_vector(23 downto 0);
+	
+	signal addr:		integer := 0;
 
 begin
 	
 	reset_n <= KEY(1);
-	LED(0) <= KEY(0);
 	
 	
 	-- 148.5 MHz for 1080p 60Hz
@@ -113,19 +141,84 @@ begin
 		);
 	
 	HDMI_TX_CLK <= pxl_clk;
+
+	process (cam_clk)
+	begin
+		if rising_edge(cam_clk) then
+			if (cam_count = 1) then
+				cam_count <= 0;
+				cam_data <= GPIO1_D(19 downto 12) & GPIO1_D(19 downto 12) & GPIO1_D(19 downto 12);
+			else
+				cam_count <= 1;
+			end if;
+			
+			addr <= addr + 1;
+		end if;
+	end process;
 	
+	--HDMI_TX_D <= cam_data;
+	
+	cam_pll: pll_cam
+		port map(
+			inclk0 	=> MAX10_CLK1_50,
+			c0 		=> cam_clk
+		);
+
+	GPIO1_D(20) <= cam_clk;
+		
+		
 	hdmi: HDMI_TX 
+	-- 12.58750000 MHz 640x480 30 Hz
+--		generic map (
+--			h_total		=>  800,
+--			h_active	=>  640,
+--			h_front		=>   16,
+--			h_sync		=>   96,
+--			h_back		=>   48,
+--
+--			v_total		=>  525,
+--			v_active	=>  480,
+--			v_front		=>   10,
+--			v_sync		=>    3,
+--			v_back		=>   33
+--		)
+		generic map (
+			h_total		=>  784, -- -16
+			h_active	=>  640, 
+			h_front		=>   11, -- -5
+			h_sync		=>   90, -- -6
+			h_back		=>   43, -- -5
+
+			v_total		=>  510, -- -15
+			v_active	=>  480,
+			v_front		=>   10, -- -0
+			v_sync		=>    3,
+			v_back		=>   17  -- -10
+		)
 		port map (
 			clk 	=> pxl_clk,
 			rst_n 	=> reset_n,
+			color	=> SW(0),
 			de 		=> HDMI_TX_DE,
 			hs 		=> HDMI_TX_HS,
-			vs 		=> HDMI_TX_VS,
-			r 		=> HDMI_TX_D(23 downto 16),
-			g 		=> HDMI_TX_D(15 downto 8),
-			b 		=> HDMI_TX_D(7 downto 0)
+			vs 		=> HDMI_TX_VS
+--			r 		=> HDMI_TX_D(23 downto 16),
+--			g 		=> HDMI_TX_D(15 downto 8),
+--			b 		=> HDMI_TX_D(7 downto 0)
 		);
-	
+		
+		ram1: full_ram 
+			port map (
+				data		=> (others => '0'),
+				rdaddress	=> std_logic_vector(to_unsigned(addr, 19)),
+				rdclock		=> pxl_clk,
+				wraddress	=> (others => '0'),
+				wrclock		=> '0',
+				wren		=> '0',
+				q			=> LED
+			);
+		
+
 end behavioral ; -- behavioral
 
 

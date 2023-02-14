@@ -27,7 +27,7 @@ begin
 	r2 <= "00000" 	& r(7 downto 5); -- shift right by 5
 	g1 <= "0" 		& g(7 downto 1); -- shift right by 1
 	g2 <= "0000" 	& g(7 downto 4); -- shift right by 4
-	b1 <= "0000" 	& b(7 downto 4); -- shift right by 4
+	b1 <= "000" 	& b(7 downto 3); -- shift right by 3
 	b2 <= "00000" 	& b(7 downto 5); -- shift right by 5
 
 	-- Add all the values together

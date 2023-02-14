@@ -4,7 +4,7 @@
 -- MODULE: altpll 
 
 -- ============================================================
--- File Name: pll_pxlclk.vhd
+-- File Name: pll_cam.vhd
 -- Megafunction Name(s):
 -- 			altpll
 --
@@ -40,16 +40,16 @@ USE ieee.std_logic_1164.all;
 LIBRARY altera_mf;
 USE altera_mf.all;
 
-ENTITY pll_pxlclk IS
+ENTITY pll_cam IS
 	PORT
 	(
 		inclk0		: IN STD_LOGIC  := '0';
 		c0		: OUT STD_LOGIC 
 	);
-END pll_pxlclk;
+END pll_cam;
 
 
-ARCHITECTURE SYN OF pll_pxlclk IS
+ARCHITECTURE SYN OF pll_cam IS
 
 	SIGNAL sub_wire0	: STD_LOGIC ;
 	SIGNAL sub_wire1	: STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -134,14 +134,14 @@ BEGIN
 	altpll_component : altpll
 	GENERIC MAP (
 		bandwidth_type => "AUTO",
-		clk0_divide_by => 4000,
+		clk0_divide_by => 100000,
 		clk0_duty_cycle => 50,
-		clk0_multiply_by => 1007,
+		clk0_multiply_by => 49343,
 		clk0_phase_shift => "0",
 		compensate_clock => "CLK0",
 		inclk0_input_frequency => 20000,
 		intended_device_family => "MAX 10",
-		lpm_hint => "CBX_MODULE_PREFIX=pll_pxlclk",
+		lpm_hint => "CBX_MODULE_PREFIX=pll_cam",
 		lpm_type => "altpll",
 		operation_mode => "NORMAL",
 		pll_type => "AUTO",
@@ -218,7 +218,7 @@ END SYN;
 -- Retrieval info: PRIVATE: DEVICE_SPEED_GRADE STRING "Any"
 -- Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "1"
 -- Retrieval info: PRIVATE: DUTY_CYCLE0 STRING "50.00000000"
--- Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "12.587500"
+-- Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "24.671499"
 -- Retrieval info: PRIVATE: EXPLICIT_SWITCHOVER_COUNTER STRING "0"
 -- Retrieval info: PRIVATE: EXT_FEEDBACK_RADIO STRING "0"
 -- Retrieval info: PRIVATE: GLOCKED_COUNTER_EDIT_CHANGED STRING "1"
@@ -243,7 +243,7 @@ END SYN;
 -- Retrieval info: PRIVATE: MIRROR_CLK0 STRING "0"
 -- Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "1"
 -- Retrieval info: PRIVATE: NORMAL_MODE_RADIO STRING "1"
--- Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "12.58750000"
+-- Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "24.67150000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE0 STRING "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT0 STRING "MHz"
 -- Retrieval info: PRIVATE: PHASE_RECONFIG_FEATURE_ENABLED STRING "1"
@@ -261,7 +261,7 @@ END SYN;
 -- Retrieval info: PRIVATE: PLL_PFDENA_CHECK STRING "0"
 -- Retrieval info: PRIVATE: PLL_TARGET_HARCOPY_CHECK NUMERIC "0"
 -- Retrieval info: PRIVATE: PRIMARY_CLK_COMBO STRING "inclk0"
--- Retrieval info: PRIVATE: RECONFIG_FILE STRING "pll_pxlclk.mif"
+-- Retrieval info: PRIVATE: RECONFIG_FILE STRING "pll_cam.mif"
 -- Retrieval info: PRIVATE: SACN_INPUTS_CHECK STRING "0"
 -- Retrieval info: PRIVATE: SCAN_FEATURE_ENABLED STRING "1"
 -- Retrieval info: PRIVATE: SELF_RESET_LOCK_LOSS STRING "0"
@@ -286,9 +286,9 @@ END SYN;
 -- Retrieval info: PRIVATE: ZERO_DELAY_RADIO STRING "0"
 -- Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
 -- Retrieval info: CONSTANT: BANDWIDTH_TYPE STRING "AUTO"
--- Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "4000"
+-- Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "100000"
 -- Retrieval info: CONSTANT: CLK0_DUTY_CYCLE NUMERIC "50"
--- Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "1007"
+-- Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "49343"
 -- Retrieval info: CONSTANT: CLK0_PHASE_SHIFT STRING "0"
 -- Retrieval info: CONSTANT: COMPENSATE_CLOCK STRING "CLK0"
 -- Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "20000"
@@ -345,11 +345,11 @@ END SYN;
 -- Retrieval info: CONNECT: @inclk 0 0 1 1 GND 0 0 0 0
 -- Retrieval info: CONNECT: @inclk 0 0 1 0 inclk0 0 0 0 0
 -- Retrieval info: CONNECT: c0 0 0 0 0 @clk 0 0 1 0
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_pxlclk.vhd TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_pxlclk.ppf TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_pxlclk.inc FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_pxlclk.cmp TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_pxlclk.bsf FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_pxlclk_inst.vhd FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_cam.vhd TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_cam.ppf TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_cam.inc FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_cam.cmp TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_cam.bsf FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_cam_inst.vhd FALSE
 -- Retrieval info: LIB_FILE: altera_mf
 -- Retrieval info: CBX_MODULE_PREFIX: ON

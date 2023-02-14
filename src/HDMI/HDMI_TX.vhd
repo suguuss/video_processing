@@ -20,6 +20,7 @@ entity HDMI_TX is
 	port (
 		clk:		in		std_logic;
 		rst_n:		in		std_logic;
+		color:		in		std_logic;
 		de:			out		std_logic;
 		vs:			out		std_logic;
 		hs:			out		std_logic;
@@ -31,11 +32,26 @@ end HDMI_TX;
 
 architecture behavioral of HDMI_TX is
 
+	component rgbgray
+		port (
+			r:			in		std_logic_vector(7 downto 0);
+			g:			in		std_logic_vector(7 downto 0);
+			b:			in		std_logic_vector(7 downto 0);
+			
+			gray:		out		std_logic_vector(7 downto 0)
+		);
+	end component;
+
 	signal h_count: integer 	:= 0;
 	signal v_count: integer 	:= 0;
 	
 	signal h_act:	std_logic 	:= '0';
 	signal v_act:	std_logic 	:= '0';
+	
+	signal gray:	std_logic_vector(7 downto 0);
+	signal r_sig:	std_logic_vector(7 downto 0);
+	signal g_sig:	std_logic_vector(7 downto 0);
+	signal b_sig:	std_logic_vector(7 downto 0);
 
 begin
 
@@ -115,14 +131,44 @@ begin
 	end process; -- end v_ctrl
 	
 	
+	gray1: rgbgray
+		port map (
+			r => r_sig,
+			g => g_sig,
+			b => b_sig,
+			gray => gray
+		);
+	
 	frame_gen: process(clk)
 	begin
 		if rising_edge(clk) then
 			if h_act = '1' and v_act = '1' then
 				de <= '1';
-				r <= std_logic_vector(to_unsigned(h_count, 12))(9 downto 2);
-				g <= std_logic_vector(to_unsigned(v_count, 12))(9 downto 2);
-				b <= std_logic_vector(to_unsigned(h_count, 12))(9 downto 2);
+				
+--				if h_count < 960 then
+--					r_sig <= x"00";
+--					g_sig <= x"FF";
+--					b_sig <= x"00";
+--				else 
+--					r_sig <= x"00";
+--					g_sig <= x"00";
+--					b_sig <= x"FF";
+--				end if;
+				r_sig <= std_logic_vector(to_unsigned(h_count, 12))(8 downto 1);
+				g_sig <= std_logic_vector(to_unsigned(v_count, 12))(8 downto 1);
+				b_sig <= std_logic_vector(to_unsigned(h_count, 12))(8 downto 1);
+				
+				if color = '0' then
+					r <= r_sig;
+					g <= g_sig;
+					b <= b_sig;
+				else
+					r <= gray;
+					g <= gray;
+					b <= gray;
+				end if;
+				
+				
 			else
 				de <= '0';
 				r <= (others => '0');

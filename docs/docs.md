@@ -173,6 +173,11 @@ I decided to convert the RGB video stream coming from the camera to a grayscale 
 
 To do the conversion, I searched for an efficient way to convert RGB to Gray on FPGA. I found [this paper](https://www.sciencedirect.com/science/article/pii/S187705092031200X?ref=cra_js_challenge&fr=RR-1), and decided to implement it. They explain in the paper that the gray value of a pixel is composed of 28.1% of red, 56.2% of green and 9.3% of blue, this is used in the "rgb2gray" function in MATLAB.
 
+> NOTE
+> 
+> After testing the grayscale conversion, I decided that the blue was not high enough, and added more blue. 
+
+
 This is the block diagram of the proposed technique.
 
 ![rgb2gray](/docs/assets/rgb2gray.jpg)
@@ -212,7 +217,7 @@ begin
 	r2 <= "00000" 	& r(7 downto 5); -- shift right by 5
 	g1 <= "0" 		& g(7 downto 1); -- shift right by 1
 	g2 <= "0000" 	& g(7 downto 4); -- shift right by 4
-	b1 <= "0000" 	& b(7 downto 4); -- shift right by 4
+	b1 <= "00" 		& b(7 downto 2); -- shift right by 2
 	b2 <= "00000" 	& b(7 downto 5); -- shift right by 5
 
 	-- Add all the values together
@@ -234,4 +239,9 @@ They also give the intermediate R1 and R2 values (values after shifting the bits
 ![graysim](/docs/assets/gray_simulation.jpg)
 
 We can see in the simulation that I have the same result as the one in the example given in the paper. I also tested another value and verified it by doing the calculations by hand using python.
+
+> NOTE
+> 
+> The tests were done before adding more blue.
+
 
