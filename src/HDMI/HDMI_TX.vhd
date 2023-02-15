@@ -26,7 +26,10 @@ entity HDMI_TX is
 		hs:			out		std_logic;
 		r:			out		std_logic_vector(7 downto 0);
 		g:			out		std_logic_vector(7 downto 0);
-		b:			out		std_logic_vector(7 downto 0)
+		b:			out		std_logic_vector(7 downto 0);
+
+		ram_data:	in		std_logic_vector(7 downto 0);
+		ram_addr:	out		std_logic_vector(16 downto 0)
 	);
 end HDMI_TX;
 
@@ -139,24 +142,26 @@ begin
 			gray => gray
 		);
 	
+	ram_addr <= std_logic_vector(to_unsigned((v_count/2) * 320 + (h_count/2), 17));
+	
 	frame_gen: process(clk)
 	begin
 		if rising_edge(clk) then
 			if h_act = '1' and v_act = '1' then
 				de <= '1';
 				
---				if h_count < 960 then
---					r_sig <= x"00";
---					g_sig <= x"FF";
---					b_sig <= x"00";
---				else 
---					r_sig <= x"00";
---					g_sig <= x"00";
---					b_sig <= x"FF";
---				end if;
-				r_sig <= std_logic_vector(to_unsigned(h_count, 12))(8 downto 1);
-				g_sig <= std_logic_vector(to_unsigned(v_count, 12))(8 downto 1);
-				b_sig <= std_logic_vector(to_unsigned(h_count, 12))(8 downto 1);
+				if h_count < 600 then
+					r_sig <= ram_data;
+					g_sig <= ram_data;
+					b_sig <= ram_data;
+				else
+					r_sig <= (others => '0');
+					g_sig <= (others => '0');
+					b_sig <= (others => '0');
+				end if;
+				-- r_sig <= std_logic_vector(to_unsigned(h_count, 12))(8 downto 1);
+				-- g_sig <= std_logic_vector(to_unsigned(v_count, 12))(8 downto 1);
+				-- b_sig <= std_logic_vector(to_unsigned(h_count, 12))(8 downto 1);
 				
 				if color = '0' then
 					r <= r_sig;
