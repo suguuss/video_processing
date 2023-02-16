@@ -1,0 +1,28 @@
+--copyright (c) 2021  intel corporation. all rights reserved.
+--your use of intel corporation's design tools, logic functions 
+--and other software and tools, and any partner logic 
+--functions, and any output files from any of the foregoing 
+--(including device programming or simulation files), and any 
+--associated documentation or information are expressly subject 
+--to the terms and conditions of the intel program license 
+--subscription agreement, the intel quartus prime license agreement,
+--the intel fpga ip license agreement, or other applicable license
+--agreement, including, without limitation, that your use is for
+--the sole purpose of programming logic devices manufactured by
+--intel and sold by intel or its authorized distributors.  please
+--refer to the applicable agreement for further details, at
+--https://fpgasoftware.intel.com/eula.
+
+
+component full_ram
+	port
+	(
+		data		: in std_logic_vector (15 downto 0);
+		rdaddress	: in std_logic_vector (15 downto 0);
+		rdclock		: in std_logic;
+		wraddress	: in std_logic_vector (15 downto 0);
+		wrclock		: in std_logic := '1';
+		wren		: in std_logic := '0';
+		q			: out std_logic_vector (15 downto 0)
+	);
+end component;

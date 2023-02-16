@@ -81,7 +81,7 @@ architecture behavioral of top is
 			g:			out		std_logic_vector(7 downto 0);
 			b:			out		std_logic_vector(7 downto 0);
 			
-			ram_data:	in		std_logic_vector(7 downto 0);
+			ram_data:	in		std_logic_vector(15 downto 0);
 			ram_addr:	out		std_logic_vector(16 downto 0)
 		);
 	end component;
@@ -98,13 +98,13 @@ architecture behavioral of top is
 	
 	component full_ram
 		port (
-			data		:	in 		std_logic_vector (7 downto 0);
+			data		:	in 		std_logic_vector (15 downto 0);
 			rdaddress	:	in 		std_logic_vector (16 downto 0);
 			rdclock		:	in 		std_logic;
 			wraddress	:	in 		std_logic_vector (16 downto 0);
 			wrclock		:	in 		std_logic := '1';
 			wren		:	in 		std_logic := '0';
-			q			:	out 	std_logic_vector (7 downto 0)
+			q			:	out 	std_logic_vector (15 downto 0)
 		);
 	end component;
 	
@@ -116,7 +116,7 @@ architecture behavioral of top is
 			href:			in		std_logic;
 			data:			in		std_logic_vector(7 downto 0);
 
-			ram_wr_data:	out		std_logic_vector(7 downto 0)  := (others => '0');
+			ram_wr_data:	out		std_logic_vector(15 downto 0)  := (others => '0');
 			ram_wr_addr:	out		std_logic_vector(16 downto 0) := (others => '0');
 			ram_wr_en:		out		std_logic := '0'
 		);
@@ -136,9 +136,9 @@ architecture behavioral of top is
 	--signal cam_clk:			std_logic;
 	signal reset_n:			std_logic;
 	
-	signal ram_rd_data:		std_logic_vector(7 downto 0);
+	signal ram_rd_data:		std_logic_vector(15 downto 0);
 	signal ram_rd_addr:		std_logic_vector(16 downto 0);
-	signal ram_wr_data:		std_logic_vector(7 downto 0);
+	signal ram_wr_data:		std_logic_vector(15 downto 0);
 	signal ram_wr_addr:		std_logic_vector(16 downto 0);
 	signal ram_wren:		std_logic;
 	

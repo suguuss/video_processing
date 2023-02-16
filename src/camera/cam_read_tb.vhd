@@ -48,17 +48,21 @@ begin
 	process begin
 
 		
-		for l in 0 to 480-1 loop
+		-- for l in 0 to 480-1 loop
+		for l in 0 to 2-1 loop
 			href <= '1';
-			for i in 0 to 640-1 loop
+			-- for i in 0 to 640-1 loop
+			for i in 0 to 20-1 loop
 				pclk <= '0';
-				data <= x"ff";
+				data <= "11111111";
+				-- data <= "00100111";
 				wait for 20 ns;
 				
 				pclk <= '1';
 				wait for 20 ns;
 
-				data <= x"00";
+				data <= "00100111";
+				-- data <= "11111111";
 				pclk <= '0';
 				wait for 20 ns;
 

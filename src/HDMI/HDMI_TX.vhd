@@ -28,7 +28,7 @@ entity HDMI_TX is
 		g:			out		std_logic_vector(7 downto 0);
 		b:			out		std_logic_vector(7 downto 0);
 
-		ram_data:	in		std_logic_vector(7 downto 0);
+		ram_data:	in		std_logic_vector(15 downto 0);
 		ram_addr:	out		std_logic_vector(16 downto 0)
 	);
 end HDMI_TX;
@@ -153,9 +153,9 @@ begin
 				-- r_sig <= ram_data;
 				-- g_sig <= x"00";
 				-- b_sig <= x"00";
-				r_sig <= ram_data(7 downto 5) & "00000";
-				g_sig <= ram_data(4 downto 2) & "00000";
-				b_sig <= ram_data(1 downto 0) & "000000";
+				r_sig <= ram_data(15 downto 11) & "000";
+				g_sig <= ram_data(10 downto 5) & "00";
+				b_sig <= ram_data(4 downto 0) & "000";
 				
 				if color = '0' then
 					r <= r_sig;

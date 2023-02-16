@@ -12,7 +12,7 @@ entity cam_read is
 		href:			in		std_logic;
 		data:			in		std_logic_vector(7 downto 0);
 
-		ram_wr_data:	out		std_logic_vector(7 downto 0)  := (others => '0');
+		ram_wr_data:	out		std_logic_vector(15 downto 0)  := (others => '0');
 		ram_wr_addr:	out		std_logic_vector(16 downto 0) := (others => '0');
 		ram_wr_en:		out		std_logic := '0'
 	);
@@ -42,13 +42,15 @@ begin
 				else
 					if incr = 0 then
 						incr <= 1;
-						r <= data(7 downto 3);
-						g(5 downto 3) <= data(2 downto 0);
+						
+						g(2 downto 0) <= data(7 downto 5);
+						b <= data(4 downto 0);
 					else
 						incr <= 0;
 						h_count <= h_count + 1;
-						g(2 downto 0) <= data(7 downto 5);
-						b <= data(4 downto 0);
+						
+						r <= data(7 downto 3);
+						g(5 downto 3) <= data(2 downto 0);
 					end if;
 				end if;
 			end if;
@@ -78,12 +80,14 @@ begin
 	ram_wr_addr <= std_logic_vector(to_unsigned((v_count/2) * 320 + (h_count/2), 17));
 	
 	-- ram_wr_data <= r & "000";
-	ram_wr_data <= r(4 downto 2) & g(5 downto 3) & b(4 downto 3);
+	ram_wr_data <= r(4 downto 0) & g(5 downto 0) & b(4 downto 0);
+	-- ram_wr_data <= x"ffff";
+	
 	
 	data_proc : process( pclk )
 	begin
 		if falling_edge(pclk) then
-			if href = '1' and vsync = '0' and incr = 0 then
+			if href = '1' and vsync = '0' and incr = 1 then
 				ram_wr_en <= '1';
 			else 
 				ram_wr_en <= '0';
