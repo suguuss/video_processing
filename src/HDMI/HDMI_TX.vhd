@@ -149,19 +149,13 @@ begin
 		if rising_edge(clk) then
 			if h_act = '1' and v_act = '1' then
 				de <= '1';
-				
-				if h_count < 600 then
-					r_sig <= ram_data;
-					g_sig <= ram_data;
-					b_sig <= ram_data;
-				else
-					r_sig <= (others => '0');
-					g_sig <= (others => '0');
-					b_sig <= (others => '0');
-				end if;
-				-- r_sig <= std_logic_vector(to_unsigned(h_count, 12))(8 downto 1);
-				-- g_sig <= std_logic_vector(to_unsigned(v_count, 12))(8 downto 1);
-				-- b_sig <= std_logic_vector(to_unsigned(h_count, 12))(8 downto 1);
+			
+				-- r_sig <= ram_data;
+				-- g_sig <= x"00";
+				-- b_sig <= x"00";
+				r_sig <= ram_data(7 downto 5) & "00000";
+				g_sig <= ram_data(4 downto 2) & "00000";
+				b_sig <= ram_data(1 downto 0) & "000000";
 				
 				if color = '0' then
 					r <= r_sig;

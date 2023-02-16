@@ -1,10 +1,12 @@
-module I2C_HDMI_Config (	//	Host Side
+// Taken from the HDMI config
+
+
+module I2C_CAM_Config (	//	Host Side
 		iCLK,
 		iRST_N,
 		//	I2C Side
 		I2C_SCLK,
 		I2C_SDAT,
-		HDMI_TX_INT
 	);
 //	Host Side
 input		iCLK;
@@ -12,7 +14,6 @@ input		iRST_N;
 //	I2C Side
 output		I2C_SCLK;
 inout		I2C_SDAT;
-input		HDMI_TX_INT;
 
 //	Internal Registers/Wires
 reg	[15:0]	mI2C_CLK_DIV;
@@ -27,9 +28,9 @@ reg	[3:0]	mSetup_ST;
 
 //	Clock Setting
 parameter	CLK_Freq	=	50000000;	//	50	MHz
-parameter	I2C_Freq	=	20000;		//	20	KHz
+parameter	I2C_Freq	=	50000;		//	50	KHz
 //	LUT Data Number
-parameter	LUT_SIZE	=	31;
+parameter	LUT_SIZE	=	17;
 
 /////////////////////	I2C Control Clock	////////////////////////
 always@(posedge iCLK or negedge iRST_N)
@@ -75,7 +76,7 @@ begin
 		begin
 			case(mSetup_ST)
 			0:	begin
-					mI2C_DATA	<=	{8'h72,LUT_DATA};
+					mI2C_DATA	<=	{8'h42,LUT_DATA};
 					mI2C_GO		<=	1;
 					mSetup_ST	<=	1;
 				end
@@ -97,12 +98,7 @@ begin
 		end
 		else
 		begin
-		  if(!HDMI_TX_INT)
-		  begin
-		    LUT_INDEX <= 0;
-		  end
-		  else
-		    LUT_INDEX <= LUT_INDEX;
+			LUT_INDEX <= LUT_INDEX;
 		end
 	end
 end
@@ -113,39 +109,30 @@ begin
 	case(LUT_INDEX)
 	
 	//	Video Config Data
-	0	:	LUT_DATA	<=	16'h9803;  //Must be set to 0x03 for proper operation
-	1	:	LUT_DATA	<=	16'h0100;  //Set 'N' value at 6144
-	2	:	LUT_DATA	<=	16'h0218;  //Set 'N' value at 6144
-	3	:	LUT_DATA	<=	16'h0300;  //Set 'N' value at 6144
-	4	:	LUT_DATA	<=	16'h1470;  // Set Ch count in the channel status to 8.
-	5	:	LUT_DATA	<=	16'h1520;  //Input 444 (RGB or YCrCb) with Separate Syncs, 48kHz fs
-	6	:	LUT_DATA	<=	16'h1630;  //Output format 444, 24-bit input
-	7	:	LUT_DATA	<=	16'h1846;  //Disable CSC
-	8	:	LUT_DATA	<=	16'h4080;  //General control packet enable
-	9	:	LUT_DATA	<=	16'h4110;  //Power down control
-	10	:	LUT_DATA	<=	16'h49A8;  //Set dither mode - 12-to-10 bit
-	11	:	LUT_DATA	<=	16'h5510;  //Set RGB in AVI infoframe
-	12	:	LUT_DATA	<=	16'h5608;  //Set active format aspect
-	13	:	LUT_DATA	<=	16'h96F6;  //Set interrup
-	14	:	LUT_DATA	<=	16'h7307;  //Info frame Ch count to 8
-	15	:	LUT_DATA	<=	16'h761f;  //Set speaker allocation for 8 channels
-	16	:	LUT_DATA	<=	16'h9803;  //Must be set to 0x03 for proper operation
-	17	:	LUT_DATA	<=	16'h9902;  //Must be set to Default Value
-	18	:	LUT_DATA	<=	16'h9ae0;  //Must be set to 0b1110000
-	19	:	LUT_DATA	<=	16'h9c30;  //PLL filter R1 value
-	20	:	LUT_DATA	<=	16'h9d61;  //Set clock divide
-	21	:	LUT_DATA	<=	16'ha2a4;  //Must be set to 0xA4 for proper operation
-	22	:	LUT_DATA	<=	16'ha3a4;  //Must be set to 0xA4 for proper operation
-	23	:	LUT_DATA	<=	16'ha504;  //Must be set to Default Value
-	24	:	LUT_DATA	<=	16'hab40;  //Must be set to Default Value
-	25	:	LUT_DATA	<=	16'haf16;  //Select HDMI mode
-	26	:	LUT_DATA	<=	16'hba60;  //No clock delay
-	27	:	LUT_DATA	<=	16'hd1ff;  //Must be set to Default Value
-	28	:	LUT_DATA	<=	16'hde10;  //Must be set to Default for proper operation
-	29	:	LUT_DATA	<=	16'he460;  //Must be set to Default Value
-	30	:	LUT_DATA	<=	16'hfa7d;  //Nbr of times to look for good phase
-
-	default:		LUT_DATA	<=	16'h9803;
+	0	:	LUT_DATA	<=	16'h1280; // Reset all registers to default values
+	1	:	LUT_DATA	<=	16'h1280; // Reset all registers to default values
+	2	:	LUT_DATA	<=	16'h1204; // Select RGB mode
+	3	:	LUT_DATA	<=	16'h703A; // Select test pattern
+	4	:	LUT_DATA	<=	16'h71B5; // Select test pattern
+	5   :       LUT_DATA        <=      16'h1204;
+	6       :       LUT_DATA        <=      16'h8c00;
+	7       :       LUT_DATA        <=      16'h0400;
+	8       :       LUT_DATA        <=      16'h40d0;
+	9       :       LUT_DATA        <=      16'h146a;
+	10      :       LUT_DATA        <=      16'h4fb3;
+	11      :       LUT_DATA        <=      16'h50b3;
+	12      :       LUT_DATA        <=      16'h5100;
+	13      :       LUT_DATA        <=      16'h523d;
+	14      :       LUT_DATA        <=      16'h53a7;
+	15      :       LUT_DATA        <=      16'h54e4;
+	16      :       LUT_DATA        <=      16'h3d40;
+//	5	:	LUT_DATA	<=	16'h32B6; 
+//	6	:	LUT_DATA	<=	16'h1713; 
+//	7	:	LUT_DATA	<=	16'h1801; 
+//	8	:	LUT_DATA	<=	16'h1902; 
+//	9	:	LUT_DATA	<=	16'h1A7A; 
+//	10	:	LUT_DATA	<=	16'h030A; 
+	default:		LUT_DATA	<=	16'h1280;
 	endcase
 end
 ////////////////////////////////////////////////////////////////////

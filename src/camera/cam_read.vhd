@@ -12,9 +12,9 @@ entity cam_read is
 		href:			in		std_logic;
 		data:			in		std_logic_vector(7 downto 0);
 
-		ram_wr_data:	out		std_logic_vector(7 downto 0);
-		ram_wr_addr:	out		std_logic_vector(16 downto 0);
-		ram_wr_en:		out		std_logic
+		ram_wr_data:	out		std_logic_vector(7 downto 0)  := (others => '0');
+		ram_wr_addr:	out		std_logic_vector(16 downto 0) := (others => '0');
+		ram_wr_en:		out		std_logic := '0'
 	);
 end cam_read;
 
@@ -23,6 +23,9 @@ architecture rtl of cam_read is
 	signal h_count:	integer := 0;
 	signal v_count:	integer := 0;
 	signal incr:	integer := 0;
+	signal r:		std_logic_vector(4 downto 0) := (others => '0');
+	signal g:		std_logic_vector(5 downto 0) := (others => '0');
+	signal b:		std_logic_vector(4 downto 0) := (others => '0');
 
 begin
 	
@@ -39,9 +42,13 @@ begin
 				else
 					if incr = 0 then
 						incr <= 1;
+						r <= data(7 downto 3);
+						g(5 downto 3) <= data(2 downto 0);
 					else
 						incr <= 0;
 						h_count <= h_count + 1;
+						g(2 downto 0) <= data(7 downto 5);
+						b <= data(4 downto 0);
 					end if;
 				end if;
 			end if;
@@ -69,9 +76,9 @@ begin
 
 
 	ram_wr_addr <= std_logic_vector(to_unsigned((v_count/2) * 320 + (h_count/2), 17));
-	ram_wr_data <= data;
-	--ram_wr_data <= x"ff";
-	--ram_wr_data <= std_logic_vector(to_unsigned(v_count, 8));
+	
+	-- ram_wr_data <= r & "000";
+	ram_wr_data <= r(4 downto 2) & g(5 downto 3) & b(4 downto 3);
 	
 	data_proc : process( pclk )
 	begin

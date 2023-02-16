@@ -116,9 +116,18 @@ architecture behavioral of top is
 			href:			in		std_logic;
 			data:			in		std_logic_vector(7 downto 0);
 
-			ram_wr_data:	out		std_logic_vector(7 downto 0);
-			ram_wr_addr:	out		std_logic_vector(16 downto 0);
-			ram_wr_en:		out		std_logic
+			ram_wr_data:	out		std_logic_vector(7 downto 0)  := (others => '0');
+			ram_wr_addr:	out		std_logic_vector(16 downto 0) := (others => '0');
+			ram_wr_en:		out		std_logic := '0'
+		);
+	end component;
+	
+	component I2C_CAM_Config
+		port (
+			iCLK:		in		std_logic;
+			iRST_N:		in		std_logic;
+			I2C_SCLK:	out		std_logic;
+			I2C_SDAT:	inout	std_logic
 		);
 	end component;
 
@@ -140,13 +149,13 @@ begin
 	
 	-- 148.5 MHz for 1080p 60Hz
 	-- 74.25 MHz for 1080p 30Hz
-	pixel_pll: pll_pxlclk
+	Inst_pixel_pll: pll_pxlclk
 		port map(
 			inclk0 	=> MAX10_CLK1_50,
 			c0 		=> pxl_clk
 		);
 			
-	hdmi_conf: I2C_HDMI_Config 
+	Inst_hdmi_conf: I2C_HDMI_Config 
 		port map (
 			iCLK 		=> MAX10_CLK2_50,
 			iRST_N 		=> reset_n,		
@@ -157,7 +166,7 @@ begin
 	
 
 
-	hdmi: HDMI_TX 
+	Inst_hdmi: HDMI_TX 
 	-- 12.58750000 MHz 640x480 30 Hz
 	-- 25.17500000 MHz 640x480 60 Hz
 		generic map (
@@ -188,10 +197,10 @@ begin
 			ram_addr	=> ram_rd_addr
 		);
 
-	HDMI_TX_CLK <= pxl_clk;
+	HDMI_TX_CLK <= not pxl_clk;
 
 		
-	ram1: full_ram 
+	Inst_ram: full_ram 
 		port map (
 			wraddress	=> ram_wr_addr,
 			wrclock		=> GPIO1_D(8),
@@ -205,7 +214,7 @@ begin
 		
 
 		
-	cam_pll: pll_cam
+	Inst_cam_pll: pll_cam
 		port map(
 			inclk0 	=> MAX10_CLK1_50,
 			c0 		=> GPIO1_D(20)
@@ -216,7 +225,7 @@ begin
 	
 	GPIO1_D(9) <= reset_n;
 		
-	cam1: cam_read
+	Inst_cam: cam_read
 		port map (
 			pclk			=> GPIO1_D(8),
 			rst_n			=> reset_n,
@@ -231,7 +240,15 @@ begin
 		);
 		
 	-- LED <= ram_wr_addr(15 downto 8);
-	--LED <= not ram_wr_addr(15 downto 8);
+	LED <= not ram_wr_addr(15 downto 8);
+	
+	Inst_Cam_conf: I2C_CAM_Config 
+		port map (
+			iCLK 		=> MAX10_CLK2_50,
+			iRST_N 		=> reset_n,		
+			I2C_SCLK 	=> GPIO1_D(7),
+			I2C_SDAT 	=> GPIO1_D(6)
+		);
 		
 end behavioral ; -- behavioral
 
