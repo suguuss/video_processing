@@ -1,6 +1,6 @@
 *
-!docs/convolution_engine.drawio
-!docs/result.gif
+!docs
+!docs/**
 !.gitignore
 !.git
 !src
