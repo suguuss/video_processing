@@ -108,12 +108,12 @@ always
 begin
 	case(LUT_INDEX)
 	
-	//	Video Config Data
+//	//	Video Config Data
 	0	:	LUT_DATA	<=	16'h1280; // Reset all registers to default values
 	1	:	LUT_DATA	<=	16'h1280; // Reset all registers to default values
 	2	:	LUT_DATA	<=	16'h1204; // Select RGB mode
-	3	:	LUT_DATA	<=	16'h0000;//703A; // Select test pattern
-	4	:	LUT_DATA	<=	16'h0000;//71B5; // Select test pattern
+	3	:	LUT_DATA	<=	16'h703A; // Select test pattern
+	4	:	LUT_DATA	<=	16'h71B5; // Select test pattern
 	5	:	LUT_DATA	<=	16'h1204; // RGB565 from github
 	6	:	LUT_DATA	<=	16'h8c00;
 	7	:	LUT_DATA	<=	16'h0400;

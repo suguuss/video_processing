@@ -133,7 +133,6 @@ architecture behavioral of top is
 
 
 	signal pxl_clk:			std_logic;
-	--signal cam_clk:			std_logic;
 	signal reset_n:			std_logic;
 	
 	signal ram_rd_data:		std_logic_vector(15 downto 0);
@@ -147,8 +146,10 @@ begin
 	reset_n <= KEY(1);
 	
 	
-	-- 148.5 MHz for 1080p 60Hz
-	-- 74.25 MHz for 1080p 30Hz
+	-- 148.5   MHz for 1080p 60Hz
+	-- 74.25   MHz for 1080p 30Hz
+	-- 12.5875 MHz for 640x480 30 Hz
+	-- 25.1750 MHz for 640x480 60 Hz
 	Inst_pixel_pll: pll_pxlclk
 		port map(
 			inclk0 	=> MAX10_CLK1_50,
@@ -164,11 +165,7 @@ begin
 			HDMI_TX_INT => HDMI_TX_INT
 		);
 	
-
-
 	Inst_hdmi: HDMI_TX 
-	-- 12.58750000 MHz 640x480 30 Hz
-	-- 25.17500000 MHz 640x480 60 Hz
 		generic map (
 			h_total		=>  800,
 			h_active	=>  640,
@@ -213,16 +210,13 @@ begin
 		);
 		
 
-		
+	-- 24 MHz	
 	Inst_cam_pll: pll_cam
 		port map(
 			inclk0 	=> MAX10_CLK1_50,
 			c0 		=> GPIO1_D(20)
 		);
-	
-	-- 24 MHz
-	--GPIO1_D(20) <= cam_clk;
-	
+		
 	GPIO1_D(9) <= reset_n;
 		
 	Inst_cam: cam_read
@@ -232,15 +226,11 @@ begin
 			vsync			=> GPIO1_D(10),
 			href			=> GPIO1_D(11),
 			data			=> GPIO1_D(19 downto 12),
-			--data			=> GPIO1_D(12)&GPIO1_D(13)&GPIO1_D(14)&GPIO1_D(15)&GPIO1_D(16)&GPIO1_D(17)&GPIO1_D(18)&GPIO1_D(19),
 
 			ram_wr_data		=> ram_wr_data,
 			ram_wr_addr		=> ram_wr_addr,
 			ram_wr_en		=> ram_wren
 		);
-		
-	-- LED <= ram_wr_addr(15 downto 8);
-	LED <= not ram_wr_addr(15 downto 8);
 	
 	Inst_Cam_conf: I2C_CAM_Config 
 		port map (
@@ -249,6 +239,12 @@ begin
 			I2C_SCLK 	=> GPIO1_D(7),
 			I2C_SDAT 	=> GPIO1_D(6)
 		);
+		
+		
+		
+	
+		
+		
 		
 end behavioral ; -- behavioral
 
