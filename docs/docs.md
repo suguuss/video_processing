@@ -21,8 +21,6 @@ To get the correct timings, I used this [Video Timings Calculator](https://tomve
 The HDMI transmitter has to be configured using I2C. The code is not covered here, because I did not write it. It came with some example projets with the dev board. However, you can find the code in the `src/HDMI` folder.
 
 
-![hdmi_entity](/docs/assets/hdmi_entity.jpg)
-
 The entity of the HDMI driver is represented by the following VHDL code. The default values in the generic are for a 1080p resolution. 
 
 ```vhdl
@@ -184,8 +182,6 @@ This is the block diagram of the proposed technique.
 
 
 ## VHDL Implementation
-
-![grayentity](/docs/assets/gray_entity.jpg)
 
 ```vhdl
 library ieee;

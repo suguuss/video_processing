@@ -20,7 +20,6 @@ entity HDMI_TX is
 	port (
 		clk:		in		std_logic;
 		rst_n:		in		std_logic;
-		color:		in		std_logic;
 		de:			out		std_logic;
 		vs:			out		std_logic;
 		hs:			out		std_logic;
@@ -35,26 +34,11 @@ end HDMI_TX;
 
 architecture behavioral of HDMI_TX is
 
-	component rgbgray
-		port (
-			r:			in		std_logic_vector(7 downto 0);
-			g:			in		std_logic_vector(7 downto 0);
-			b:			in		std_logic_vector(7 downto 0);
-			
-			gray:		out		std_logic_vector(7 downto 0)
-		);
-	end component;
-
 	signal h_count: integer 	:= 0;
 	signal v_count: integer 	:= 0;
 	
 	signal h_act:	std_logic 	:= '0';
 	signal v_act:	std_logic 	:= '0';
-	
-	signal gray:	std_logic_vector(7 downto 0);
-	signal r_sig:	std_logic_vector(7 downto 0);
-	signal g_sig:	std_logic_vector(7 downto 0);
-	signal b_sig:	std_logic_vector(7 downto 0);
 
 begin
 
@@ -134,14 +118,6 @@ begin
 	end process; -- end v_ctrl
 	
 	
-	gray1: rgbgray
-		port map (
-			r => r_sig,
-			g => g_sig,
-			b => b_sig,
-			gray => gray
-		);
-	
 	ram_addr <= std_logic_vector(to_unsigned((v_count/2) * 320 + (h_count/2), 17));
 	
 	frame_gen: process(clk)
@@ -149,25 +125,25 @@ begin
 		if rising_edge(clk) then
 			if h_act = '1' and v_act = '1' then
 				de <= '1';
-			
-				-- r_sig <= ram_data;
-				-- g_sig <= x"00";
-				-- b_sig <= x"00";
-				r_sig <= ram_data(15 downto 11) & "000";
-				g_sig <= ram_data(10 downto 5) & "00";
-				b_sig <= ram_data(4 downto 0) & "000";
-				
-				if color = '0' then
-					r <= r_sig;
-					g <= g_sig;
-					b <= b_sig;
+--				r <= ram_data(15 downto 11) & "000";
+--				g <= ram_data(10 downto 5) & "00";
+--				b <= ram_data(4 downto 0) & "000";
+
+				if (h_count > 100 and h_count < 300 and v_count > 75 and v_count < 200)
+				or (h_count > 275 and h_count < 400 and v_count > 150 and v_count < 275) then
+					r <= x"ff";
+					g <= x"00";
+					b <= x"00";
+				elsif (h_count > 400 and h_count < 620 and v_count > 350 and v_count < 400) then
+					r <= x"0f";
+					g <= x"ff";
+					b <= x"00";
 				else
-					r <= gray;
-					g <= gray;
-					b <= gray;
+					r <= x"00";
+					g <= x"00";
+					b <= x"00";
 				end if;
-				
-				
+
 			else
 				de <= '0';
 				r <= (others => '0');

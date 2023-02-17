@@ -73,7 +73,6 @@ architecture behavioral of top is
 		port (
 			clk:		in		std_logic;
 			rst_n:		in		std_logic;
-			color:		in		std_logic;
 			de:			out		std_logic;
 			vs:			out		std_logic;
 			hs:			out		std_logic;
@@ -131,6 +130,31 @@ architecture behavioral of top is
 		);
 	end component;
 
+	component rgbgray
+		port (
+			r:			in		std_logic_vector(7 downto 0);
+			g:			in		std_logic_vector(7 downto 0);
+			b:			in		std_logic_vector(7 downto 0);
+			
+			gray:		out		std_logic_vector(7 downto 0)
+		);
+	end component;
+	
+	component convolution
+		port (
+			clk:		in		std_logic;
+			pxl:		in		std_logic_vector(7 downto 0);
+			de_in:		in		std_logic;
+			hs_in:		in		std_logic;
+			vs_in:		in		std_logic;
+			
+			new_pxl:	out		std_logic_vector(7 downto 0) := (others => '0');
+			gray_out:	out		std_logic_vector(7 downto 0) := (others => '0');
+			de_out:		out		std_logic;
+			hs_out:		out		std_logic;
+			vs_out:		out		std_logic
+		);
+	end component;
 
 	signal pxl_clk:			std_logic;
 	signal reset_n:			std_logic;
@@ -141,6 +165,20 @@ architecture behavioral of top is
 	signal ram_wr_addr:		std_logic_vector(16 downto 0);
 	signal ram_wren:		std_logic;
 	
+	signal gray:		std_logic_vector(7 downto 0);
+	signal r_sig:		std_logic_vector(7 downto 0);
+	signal g_sig:		std_logic_vector(7 downto 0);
+	signal b_sig:		std_logic_vector(7 downto 0);
+	
+	signal conv_pxlout:	std_logic_vector(7 downto 0);
+	signal de_sig:		std_logic;
+	signal hs_sig:		std_logic;
+	signal vs_sig:		std_logic;
+
+	signal de_sig_delayed:		std_logic;
+	signal hs_sig_delayed:		std_logic;
+	signal vs_sig_delayed:		std_logic;
+	signal gray_delayed:		std_logic_vector(7 downto 0);
 begin
 	
 	reset_n <= KEY(1);
@@ -182,13 +220,12 @@ begin
 		port map (
 			clk 		=> pxl_clk,
 			rst_n 		=> reset_n,
-			color		=> SW(0),
-			de 			=> HDMI_TX_DE,
-			hs 			=> HDMI_TX_HS,
-			vs 			=> HDMI_TX_VS,
-			r 			=> HDMI_TX_D(23 downto 16),
-			g 			=> HDMI_TX_D(15 downto 8),
-			b 			=> HDMI_TX_D(7 downto 0),
+			de 			=> de_sig,
+			hs 			=> hs_sig,
+			vs 			=> vs_sig,
+			r 			=> r_sig,
+			g 			=> g_sig,
+			b 			=> b_sig,
 			
 			ram_data 	=> ram_rd_data,
 			ram_addr	=> ram_rd_addr
@@ -241,10 +278,65 @@ begin
 		);
 		
 		
+	Inst_gray_conversion: rgbgray
+		port map (
+			r => r_sig,
+			g => g_sig,
+			b => b_sig,
+			gray => gray
+		);
 		
-	
+	Inst_convolution: convolution
+		port map (
+			clk 	=> pxl_clk,
+			pxl 	=> gray,
+			de_in	=> de_sig,
+			hs_in	=> hs_sig,
+			vs_in	=> vs_sig,
+
+			new_pxl => conv_pxlout,
+			gray_out=> gray_delayed, 
+			de_out	=> de_sig_delayed,
+			hs_out	=> hs_sig_delayed,
+			vs_out	=> vs_sig_delayed
+		);
 		
 		
+	rgb_mux : process( r_sig, g_sig, b_sig, SW )
+	begin
+		case( SW ) is
+		
+			when "00" => -- Grayscale image
+				HDMI_TX_D(23 downto 16)	<= gray;
+				HDMI_TX_D(15 downto 8)	<= gray;
+				HDMI_TX_D(7 downto 0)	<= gray;
+				HDMI_TX_DE <= de_sig;
+				HDMI_TX_HS <= hs_sig;
+				HDMI_TX_VS <= vs_sig;
+			when "10" => -- convolution output
+				HDMI_TX_D(23 downto 16)	<= conv_pxlout;
+				HDMI_TX_D(15 downto 8)	<= conv_pxlout;
+				HDMI_TX_D(7 downto 0)	<= conv_pxlout;
+				HDMI_TX_DE <= de_sig_delayed;
+				HDMI_TX_HS <= hs_sig_delayed;
+				HDMI_TX_VS <= vs_sig_delayed;
+			when "11" => -- convolution output + gray
+				HDMI_TX_D(23 downto 16)	<= conv_pxlout or gray_delayed;
+				HDMI_TX_D(15 downto 8)	<= conv_pxlout or gray_delayed;
+				HDMI_TX_D(7 downto 0)	<= conv_pxlout or gray_delayed;
+				HDMI_TX_DE <= de_sig_delayed;
+				HDMI_TX_HS <= hs_sig_delayed;
+				HDMI_TX_VS <= vs_sig_delayed;
+			when others => -- RGB image
+				HDMI_TX_D(23 downto 16)	<= r_sig;
+				HDMI_TX_D(15 downto 8)	<= g_sig;
+				HDMI_TX_D(7 downto 0)	<= b_sig;
+				HDMI_TX_DE <= de_sig;
+				HDMI_TX_HS <= hs_sig;
+				HDMI_TX_VS <= vs_sig;
+		
+		end case ;
+	end process ; -- rgb_mux
 		
 end behavioral ; -- behavioral
 

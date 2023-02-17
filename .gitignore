@@ -1,6 +1,5 @@
 *
 !docs
-!docs/**
 !.gitignore
 !.git
 !src
