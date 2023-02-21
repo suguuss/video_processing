@@ -32,11 +32,16 @@ entity top is
 	-- SW 
 	SW:					in		std_logic_vector(1 downto 0);
 
-	-- BBB Conector 
-	BBB_PWR_BUT: 		in		std_logic;
-	BBB_SYS_RESET_n: 	in		std_logic;
-	GPIO0_D: 			inout 	std_logic_vector(43 downto 0);
-	GPIO1_D: 			inout 	std_logic_vector(22 downto 0)
+	-- BBB Conector
+	-- GPIO1_D: 			inout 	std_logic_vector(22 downto 0)
+	CAM_PCLK:			in		std_logic;
+	CAM_XCLK:			out		std_logic;
+	CAM_RST:			out		std_logic;
+	CAM_VSYNC:			in		std_logic;
+	CAM_HREF:			in		std_logic;
+	CAM_DATA:			in		std_logic_vector(7 downto 0);
+	CAM_I2C_SCL:		out		std_logic;
+	CAM_I2C_SCA:		inout	std_logic
   ) ;
 end top;
 
@@ -44,66 +49,66 @@ architecture behavioral of top is
 
 	component pll_pxlclk
 		port (
-			inclk0		: in	std_logic := '0';
-			c0			: out	std_logic 
+			inclk0: 		in	std_logic := '0';
+			c0: 			out	std_logic 
 		);
 	end component;
 	
 	component pll_cam
 		port (
-			inclk0		: in	std_logic := '0';
-			c0			: out	std_logic 
+			inclk0: 		in	std_logic := '0';
+			c0: 			out	std_logic 
 		);
 	end component;
 	
 	component HDMI_TX
 		generic (
-			h_total: 	integer := 2200;
-			h_front: 	integer :=   88;
-			h_sync: 	integer :=   44;
-			h_back: 	integer :=  148;
-			h_active: 	integer := 1920;
+			h_total: 		integer := 2200;
+			h_front: 		integer :=   88;
+			h_sync: 		integer :=   44;
+			h_back: 		integer :=  148;
+			h_active: 		integer := 1920;
 
-			v_total: 	integer := 1125;
-			v_front: 	integer :=    4;
-			v_sync: 	integer :=    5;
-			v_back: 	integer :=   36;
-			v_active: 	integer := 1080
+			v_total: 		integer := 1125;
+			v_front: 		integer :=    4;
+			v_sync: 		integer :=    5;
+			v_back: 		integer :=   36;
+			v_active: 		integer := 1080
 		);
 		port (
-			clk:		in		std_logic;
-			rst_n:		in		std_logic;
-			de:			out		std_logic;
-			vs:			out		std_logic;
-			hs:			out		std_logic;
-			r:			out		std_logic_vector(7 downto 0);
-			g:			out		std_logic_vector(7 downto 0);
-			b:			out		std_logic_vector(7 downto 0);
+			clk:			in		std_logic;
+			rst_n:			in		std_logic;
+			de:				out		std_logic;
+			vs:				out		std_logic;
+			hs:				out		std_logic;
+			r:				out		std_logic_vector(7 downto 0);
+			g:				out		std_logic_vector(7 downto 0);
+			b:				out		std_logic_vector(7 downto 0);
 			
-			ram_data:	in		std_logic_vector(15 downto 0);
-			ram_addr:	out		std_logic_vector(16 downto 0)
+			ram_data:		in		std_logic_vector(15 downto 0);
+			ram_addr:		out		std_logic_vector(16 downto 0)
 		);
 	end component;
 	
 	component I2C_HDMI_Config
 		port (
-			iCLK:		in		std_logic;
-			iRST_N:		in		std_logic;
-			I2C_SCLK:	out		std_logic;
-			I2C_SDAT:	inout	std_logic;
-			HDMI_TX_INT:in		std_logic
+			iCLK:			in		std_logic;
+			iRST_N:			in		std_logic;
+			I2C_SCLK:		out		std_logic;
+			I2C_SDAT:		inout	std_logic;
+			HDMI_TX_INT:	in		std_logic
 		);
 	end component;
 	
 	component full_ram
 		port (
-			data		:	in 		std_logic_vector (15 downto 0);
-			rdaddress	:	in 		std_logic_vector (16 downto 0);
-			rdclock		:	in 		std_logic;
-			wraddress	:	in 		std_logic_vector (16 downto 0);
-			wrclock		:	in 		std_logic := '1';
-			wren		:	in 		std_logic := '0';
-			q			:	out 	std_logic_vector (15 downto 0)
+			data:			in 		std_logic_vector (15 downto 0);
+			rdaddress:		in 		std_logic_vector (16 downto 0);
+			rdclock:		in 		std_logic;
+			wraddress:		in 		std_logic_vector (16 downto 0);
+			wrclock:		in 		std_logic := '1';
+			wren:			in 		std_logic := '0';
+			q:				out 	std_logic_vector (15 downto 0)
 		);
 	end component;
 	
@@ -123,36 +128,36 @@ architecture behavioral of top is
 	
 	component I2C_CAM_Config
 		port (
-			iCLK:		in		std_logic;
-			iRST_N:		in		std_logic;
-			I2C_SCLK:	out		std_logic;
-			I2C_SDAT:	inout	std_logic
+			iCLK:			in		std_logic;
+			iRST_N:			in		std_logic;
+			I2C_SCLK:		out		std_logic;
+			I2C_SDAT:		inout	std_logic
 		);
 	end component;
 
 	component rgbgray
 		port (
-			r:			in		std_logic_vector(7 downto 0);
-			g:			in		std_logic_vector(7 downto 0);
-			b:			in		std_logic_vector(7 downto 0);
+			r:				in		std_logic_vector(7 downto 0);
+			g:				in		std_logic_vector(7 downto 0);
+			b:				in		std_logic_vector(7 downto 0);
 			
-			gray:		out		std_logic_vector(7 downto 0)
+			gray:			out		std_logic_vector(7 downto 0)
 		);
 	end component;
 	
 	component convolution
 		port (
-			clk:		in		std_logic;
-			pxl:		in		std_logic_vector(7 downto 0);
-			de_in:		in		std_logic;
-			hs_in:		in		std_logic;
-			vs_in:		in		std_logic;
+			clk:			in		std_logic;
+			pxl:			in		std_logic_vector(7 downto 0);
+			de_in:			in		std_logic;
+			hs_in:			in		std_logic;
+			vs_in:			in		std_logic;
 			
-			new_pxl:	out		std_logic_vector(7 downto 0) := (others => '0');
-			gray_out:	out		std_logic_vector(7 downto 0) := (others => '0');
-			de_out:		out		std_logic;
-			hs_out:		out		std_logic;
-			vs_out:		out		std_logic
+			new_pxl:		out		std_logic_vector(7 downto 0) := (others => '0');
+			gray_out:		out		std_logic_vector(7 downto 0) := (others => '0');
+			de_out:			out		std_logic;
+			hs_out:			out		std_logic;
+			vs_out:			out		std_logic
 		);
 	end component;
 
@@ -165,28 +170,25 @@ architecture behavioral of top is
 	signal ram_wr_addr:		std_logic_vector(16 downto 0);
 	signal ram_wren:		std_logic;
 	
-	signal gray:		std_logic_vector(7 downto 0);
-	signal r_sig:		std_logic_vector(7 downto 0);
-	signal g_sig:		std_logic_vector(7 downto 0);
-	signal b_sig:		std_logic_vector(7 downto 0);
+	signal gray:			std_logic_vector(7 downto 0);
+	signal r_sig:			std_logic_vector(7 downto 0);
+	signal g_sig:			std_logic_vector(7 downto 0);
+	signal b_sig:			std_logic_vector(7 downto 0);
 	
-	signal conv_pxlout:	std_logic_vector(7 downto 0);
-	signal de_sig:		std_logic;
-	signal hs_sig:		std_logic;
-	signal vs_sig:		std_logic;
+	signal conv_pxlout:		std_logic_vector(7 downto 0);
+	signal de_sig:			std_logic;
+	signal hs_sig:			std_logic;
+	signal vs_sig:			std_logic;
 
-	signal de_sig_delayed:		std_logic;
-	signal hs_sig_delayed:		std_logic;
-	signal vs_sig_delayed:		std_logic;
-	signal gray_delayed:		std_logic_vector(7 downto 0);
+	signal de_sig_delayed:	std_logic;
+	signal hs_sig_delayed:	std_logic;
+	signal vs_sig_delayed:	std_logic;
+	signal gray_delayed:	std_logic_vector(7 downto 0);
 begin
 	
 	reset_n <= KEY(1);
 	
-	
 	-- 148.5   MHz for 1080p 60Hz
-	-- 74.25   MHz for 1080p 30Hz
-	-- 12.5875 MHz for 640x480 30 Hz
 	-- 25.1750 MHz for 640x480 60 Hz
 	Inst_pixel_pll: pll_pxlclk
 		port map(
@@ -234,48 +236,48 @@ begin
 	HDMI_TX_CLK <= not pxl_clk;
 
 		
-	Inst_ram: full_ram 
-		port map (
-			wraddress	=> ram_wr_addr,
-			wrclock		=> GPIO1_D(8),
-			wren		=> ram_wren,
-			data		=> ram_wr_data,
+	-- Inst_ram: full_ram 
+	-- 	port map (
+	-- 		wraddress	=> ram_wr_addr,
+	-- 		wrclock		=> GPIO1_D(8),
+	-- 		wren		=> ram_wren,
+	-- 		data		=> ram_wr_data,
 
-			rdaddress	=> ram_rd_addr,
-			rdclock		=> pxl_clk,
-			q			=> ram_rd_data
-		);
+	-- 		rdaddress	=> ram_rd_addr,
+	-- 		rdclock		=> pxl_clk,
+	-- 		q			=> ram_rd_data
+	-- 	);
 		
 
 	-- 24 MHz	
-	Inst_cam_pll: pll_cam
-		port map(
-			inclk0 	=> MAX10_CLK1_50,
-			c0 		=> GPIO1_D(20)
-		);
+	-- Inst_cam_pll: pll_cam
+	-- 	port map(
+	-- 		inclk0 	=> MAX10_CLK1_50,
+	-- 		c0 		=> GPIO1_D(20)
+	-- 	);
 		
-	GPIO1_D(9) <= reset_n;
+	-- GPIO1_D(9) <= reset_n;
 		
-	Inst_cam: cam_read
-		port map (
-			pclk			=> GPIO1_D(8),
-			rst_n			=> reset_n,
-			vsync			=> GPIO1_D(10),
-			href			=> GPIO1_D(11),
-			data			=> GPIO1_D(19 downto 12),
+	-- Inst_cam: cam_read
+	-- 	port map (
+	-- 		pclk			=> GPIO1_D(8),
+	-- 		rst_n			=> reset_n,
+	-- 		vsync			=> GPIO1_D(10),
+	-- 		href			=> GPIO1_D(11),
+	-- 		data			=> GPIO1_D(19 downto 12),
 
-			ram_wr_data		=> ram_wr_data,
-			ram_wr_addr		=> ram_wr_addr,
-			ram_wr_en		=> ram_wren
-		);
+	-- 		ram_wr_data		=> ram_wr_data,
+	-- 		ram_wr_addr		=> ram_wr_addr,
+	-- 		ram_wr_en		=> ram_wren
+	-- 	);
 	
-	Inst_Cam_conf: I2C_CAM_Config 
-		port map (
-			iCLK 		=> MAX10_CLK2_50,
-			iRST_N 		=> reset_n,		
-			I2C_SCLK 	=> GPIO1_D(7),
-			I2C_SDAT 	=> GPIO1_D(6)
-		);
+	-- Inst_Cam_conf: I2C_CAM_Config 
+	-- 	port map (
+	-- 		iCLK 		=> MAX10_CLK2_50,
+	-- 		iRST_N 		=> reset_n,		
+	-- 		I2C_SCLK 	=> GPIO1_D(7),
+	-- 		I2C_SDAT 	=> GPIO1_D(6)
+	-- 	);
 		
 		
 	Inst_gray_conversion: rgbgray
@@ -302,7 +304,9 @@ begin
 		);
 		
 		
-	rgb_mux : process( r_sig, g_sig, b_sig, SW )
+	rgb_mux : process(  r_sig, g_sig, b_sig, SW, gray, de_sig, hs_sig, vs_sig, 
+						de_sig_delayed, hs_sig_delayed, vs_sig_delayed, conv_pxlout,
+						gray_delayed)
 	begin
 		case( SW ) is
 		
