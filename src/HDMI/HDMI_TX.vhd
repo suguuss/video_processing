@@ -25,10 +25,7 @@ entity HDMI_TX is
 		hs:			out		std_logic;
 		r:			out		std_logic_vector(7 downto 0);
 		g:			out		std_logic_vector(7 downto 0);
-		b:			out		std_logic_vector(7 downto 0);
-
-		ram_data:	in		std_logic_vector(15 downto 0);
-		ram_addr:	out		std_logic_vector(16 downto 0)
+		b:			out		std_logic_vector(7 downto 0)
 	);
 end HDMI_TX;
 
@@ -117,17 +114,11 @@ begin
 		end if;
 	end process; -- end v_ctrl
 	
-	
-	ram_addr <= std_logic_vector(to_unsigned((v_count/2) * 320 + (h_count/2), 17));
-	
 	frame_gen: process(clk)
 	begin
 		if rising_edge(clk) then
 			if h_act = '1' and v_act = '1' then
 				de <= '1';
---				r <= ram_data(15 downto 11) & "000";
---				g <= ram_data(10 downto 5) & "00";
---				b <= ram_data(4 downto 0) & "000";
 
 				if (h_count > 100 and h_count < 300 and v_count > 75 and v_count < 200)
 				or (h_count > 275 and h_count < 400 and v_count > 150 and v_count < 275) then

@@ -83,10 +83,7 @@ architecture behavioral of top is
 			hs:				out		std_logic;
 			r:				out		std_logic_vector(7 downto 0);
 			g:				out		std_logic_vector(7 downto 0);
-			b:				out		std_logic_vector(7 downto 0);
-			
-			ram_data:		in		std_logic_vector(15 downto 0);
-			ram_addr:		out		std_logic_vector(16 downto 0)
+			b:				out		std_logic_vector(7 downto 0)
 		);
 	end component;
 	
@@ -100,41 +97,6 @@ architecture behavioral of top is
 		);
 	end component;
 	
-	component full_ram
-		port (
-			data:			in 		std_logic_vector (15 downto 0);
-			rdaddress:		in 		std_logic_vector (16 downto 0);
-			rdclock:		in 		std_logic;
-			wraddress:		in 		std_logic_vector (16 downto 0);
-			wrclock:		in 		std_logic := '1';
-			wren:			in 		std_logic := '0';
-			q:				out 	std_logic_vector (15 downto 0)
-		);
-	end component;
-	
-	component cam_read 
-		port (
-			pclk:			in		std_logic;
-			rst_n:			in		std_logic;
-			vsync:			in		std_logic;
-			href:			in		std_logic;
-			data:			in		std_logic_vector(7 downto 0);
-
-			ram_wr_data:	out		std_logic_vector(15 downto 0)  := (others => '0');
-			ram_wr_addr:	out		std_logic_vector(16 downto 0) := (others => '0');
-			ram_wr_en:		out		std_logic := '0'
-		);
-	end component;
-	
-	component I2C_CAM_Config
-		port (
-			iCLK:			in		std_logic;
-			iRST_N:			in		std_logic;
-			I2C_SCLK:		out		std_logic;
-			I2C_SDAT:		inout	std_logic
-		);
-	end component;
-
 	component rgbgray
 		port (
 			r:				in		std_logic_vector(7 downto 0);
@@ -163,12 +125,6 @@ architecture behavioral of top is
 
 	signal pxl_clk:			std_logic;
 	signal reset_n:			std_logic;
-	
-	signal ram_rd_data:		std_logic_vector(15 downto 0);
-	signal ram_rd_addr:		std_logic_vector(16 downto 0);
-	signal ram_wr_data:		std_logic_vector(15 downto 0);
-	signal ram_wr_addr:		std_logic_vector(16 downto 0);
-	signal ram_wren:		std_logic;
 	
 	signal gray:			std_logic_vector(7 downto 0);
 	signal r_sig:			std_logic_vector(7 downto 0);
@@ -227,58 +183,11 @@ begin
 			vs 			=> vs_sig,
 			r 			=> r_sig,
 			g 			=> g_sig,
-			b 			=> b_sig,
-			
-			ram_data 	=> ram_rd_data,
-			ram_addr	=> ram_rd_addr
+			b 			=> b_sig
 		);
 
 	HDMI_TX_CLK <= not pxl_clk;
-
-		
-	-- Inst_ram: full_ram 
-	-- 	port map (
-	-- 		wraddress	=> ram_wr_addr,
-	-- 		wrclock		=> GPIO1_D(8),
-	-- 		wren		=> ram_wren,
-	-- 		data		=> ram_wr_data,
-
-	-- 		rdaddress	=> ram_rd_addr,
-	-- 		rdclock		=> pxl_clk,
-	-- 		q			=> ram_rd_data
-	-- 	);
-		
-
-	-- 24 MHz	
-	-- Inst_cam_pll: pll_cam
-	-- 	port map(
-	-- 		inclk0 	=> MAX10_CLK1_50,
-	-- 		c0 		=> GPIO1_D(20)
-	-- 	);
-		
-	-- GPIO1_D(9) <= reset_n;
-		
-	-- Inst_cam: cam_read
-	-- 	port map (
-	-- 		pclk			=> GPIO1_D(8),
-	-- 		rst_n			=> reset_n,
-	-- 		vsync			=> GPIO1_D(10),
-	-- 		href			=> GPIO1_D(11),
-	-- 		data			=> GPIO1_D(19 downto 12),
-
-	-- 		ram_wr_data		=> ram_wr_data,
-	-- 		ram_wr_addr		=> ram_wr_addr,
-	-- 		ram_wr_en		=> ram_wren
-	-- 	);
 	
-	-- Inst_Cam_conf: I2C_CAM_Config 
-	-- 	port map (
-	-- 		iCLK 		=> MAX10_CLK2_50,
-	-- 		iRST_N 		=> reset_n,		
-	-- 		I2C_SCLK 	=> GPIO1_D(7),
-	-- 		I2C_SDAT 	=> GPIO1_D(6)
-	-- 	);
-		
 		
 	Inst_gray_conversion: rgbgray
 		port map (
